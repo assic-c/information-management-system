@@ -155,6 +155,120 @@ TreeNode* Traverse(TreeNode* root)
 		printTeamInfo(root->right->team);
 		Traverse(root->right);
 	}
+ }
+ //修改参赛队伍信息
+void modifyTeamInfo(TreeNode* root)
+{
+    int teamNumber;
+    cout << "请输入需要修改的参赛队伍编号：";
+    cin >> teamNumber;
+
+    int asl = 0;  // 平均查找长度
+    TreeNode* result = search(root, teamNumber, asl);
+
+    if (result != nullptr) {
+        printTeamInfo(result->team);
+    }
+    else {
+        cout << "未找到对应参赛队伍。" << endl;
+    }
+    while(true)
+    {
+    	cout<<"字段序号：   1：参赛队伍编号   2：参赛作品名称   3：参赛学校   4：赛事类别   5：参赛者   6：指导老师    7:退出修改"<<endl; 
+    	cout<<"请输入需要修改的字段序号：";
+    	int choice;
+    	int RTnumber;
+    	string RPname;
+    	string Rschool;
+    	string Rcategory;
+    	string Rparticipant;
+    	string Rteacher;
+    	
+		cin >> choice;
+		switch(choice)
+		{
+			case 1:
+				//修改参赛队伍编号
+				cout<<"请输入修改后内容："; 
+				cin>>RTnumber;
+				result->team.teamNumber=RTnumber;
+				cout<<"修改后的队伍信息："<<endl;
+				printTeamInfo(result->team); 
+				break; 
+			case 2:
+				//修改参赛作品名称
+				cout<<"请输入修改后内容："; 
+				cin>>RPname;
+				result->team.projectName=RPname;
+				cout<<"修改后的队伍信息："<<endl;
+				printTeamInfo(result->team); 
+				break;
+			case 3:
+				//修改参赛学校
+				cout<<"请输入修改后内容："; 
+				cin>>Rschool;
+				result->team.school=Rschool;
+				cout<<"修改后的队伍信息："<<endl;
+				printTeamInfo(result->team); 
+				break;
+			case 4:
+				//修改赛事类别
+				cout<<"请输入修改后内容："; 
+				cin>>Rcategory;
+				result->team.eventCategory=Rcategory;	
+				cout<<"修改后的队伍信息："<<endl;
+				printTeamInfo(result->team); 
+				break;
+			case 5:
+				//修改参赛者
+				cout<<"请输入修改后内容："; 
+				cin>>Rparticipant;
+				result->team.participant=Rparticipant;
+				cout<<"修改后的队伍信息："<<endl;
+				printTeamInfo(result->team); 
+				break;
+			case 6:
+				//修改指导老师
+				cout<<"请输入修改后内容："; 
+				cin>>Rteacher;
+				result->team.teacher=Rteacher;
+				cout<<"修改后的队伍信息："<<endl;
+				printTeamInfo(result->team); 
+				break;
+			default:
+				//保存修改并退出 
+				return ;
+				break;	 
+		}
+
+	}
+}
+ 
+//增加参赛队伍
+void addTeam(TreeNode* root)
+{
+	Team addteam;
+    cout << "请输入需要增加的队伍信息：" << std::endl;
+    cout << "参赛队编号: ";
+    cin >> addteam.teamNumber;
+    cout << "参赛作品名称: ";
+    cin >> addteam.projectName;
+    cout << "参赛学校: ";
+    cin >> addteam.school;
+    cout << "赛事类别: ";
+    cin >> addteam.eventCategory;
+    cout << "参赛者: ";
+    cin >> addteam.participant;
+    cout << "指导教师: ";
+    cin >> addteam.teacher;
+    addteam.preliminaryScore=rand() % 41 + 60;  // 60~100之间的随机数
+    cout<<"增加的"; 
+    printTeamInfo(addteam);
+    insert(root, addteam);  //插入到二叉排序树
+	
+	//保存文件
+	return ; 
+    
  } 
 int main() {
     TreeNode* root = buildBSTFromFile("team.txt");
@@ -173,14 +287,14 @@ int main() {
         cout << "<-------输入功能前数字，回车-------->" << endl;
 
         int choice;
-        std::cin >> choice;
+        cin >> choice;
 
         switch (choice) {
         case 1:
-            //modifyTeamInfo();
+            modifyTeamInfo(root);
             break;
         case 2:
-            //addTeam();
+            addTeam(root);
             break;
         case 3:
             Traverse(root);
