@@ -30,6 +30,10 @@ struct TreeNode {
 
 };
 
+
+
+
+
 // 插入节点到二叉排序树
 TreeNode* insert(TreeNode* root, const Team& team) {
     if (root == nullptr) {
@@ -74,13 +78,16 @@ TreeNode* buildBSTFromFile(const string& filename) {
 
     TreeNode* root = nullptr;
     string line;
-
+	string temp;
     while (getline(file, line)) {
         istringstream iss(line);
         Team team;
 
         iss >> team.teamNumber;
+        //cout<< team.teamNumber<<endl;
+        getline(iss, temp, '#');    
         getline(iss, team.projectName, '#');
+        //cout<< team.projectName<<endl;
         getline(iss, team.school, '#');
         getline(iss, team.eventCategory, '#');
         getline(iss, team.participant, '#');
@@ -98,6 +105,7 @@ TreeNode* buildBSTFromFile(const string& filename) {
 
 // 输出参赛队伍信息
 void printTeamInfo(const Team& team) {
+	cout << "参赛队伍信息：" <<endl;
     cout << "参赛队编号: " << team.teamNumber << endl;
     cout << "参赛作品名称: " << team.projectName << endl;
     cout << "参赛学校: " << team.school << endl;
@@ -132,6 +140,22 @@ void queryPreliminaryScore(TreeNode* root)
     cout << "平均查找长度 (ASL): " << averageASL << endl;
 }
 
+//二叉排序树的遍历
+TreeNode* Traverse(TreeNode* root)
+{
+	if(root == nullptr)return nullptr;
+	//printTeamInfo(root->team);
+	if(root->left!=nullptr)
+	{
+		printTeamInfo(root->left->team);
+		Traverse(root->left);
+	}
+	if(root->right!=nullptr)
+	{
+		printTeamInfo(root->right->team);
+		Traverse(root->right);
+	}
+ } 
 int main() {
     TreeNode* root = buildBSTFromFile("team.txt");
 
@@ -159,7 +183,7 @@ int main() {
             //addTeam();
             break;
         case 3:
-            //browseTeams();
+            Traverse(root);
             break;
         case 4:
             queryPreliminaryScore(root);
@@ -177,7 +201,6 @@ int main() {
 
 
     // 释放二叉排序树的内存
-    // 此处省略释放内存的代码，实际项目中需要注意内存管理
 
     return 0;
 }
