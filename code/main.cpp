@@ -5,32 +5,32 @@
 
 using namespace std;
 
-// ¶¨Òå²ÎÈü¶ÓÎéµÄÊı¾İ½á¹¹
+// å®šä¹‰å‚èµ›é˜Ÿä¼çš„æ•°æ®ç»“æ„
 struct Team {
-    int teamNumber;   //¶ÓÎé±àºÅ
-    string projectName;   //ÏîÄ¿Ãû³Æ
-    string school;   //Ñ§Ğ£
-    string eventCategory;   //ÈüÊÂÀà±ğ
-    string participant;  //²ÎÈüÕß
-    string teacher;  //Ö¸µ¼ÀÏÊ¦
-    int preliminaryScore;  // ³õÈü³É¼¨
+    int teamNumber;   //é˜Ÿä¼ç¼–å·
+    string projectName;   //é¡¹ç›®åç§°
+    string school;   //å­¦æ ¡
+    string eventCategory;   //èµ›äº‹ç±»åˆ«
+    string participant;  //å‚èµ›è€…
+    string teacher;  //æŒ‡å¯¼è€å¸ˆ
+    int preliminaryScore;  // åˆèµ›æˆç»©
 };
 
-// ¶¨Òå¶ş²æÅÅĞòÊ÷µÄ½Úµã½á¹¹
+// å®šä¹‰äºŒå‰æ’åºæ ‘çš„èŠ‚ç‚¹ç»“æ„
 struct TreeNode {
     Team team;
     TreeNode* left;
     TreeNode* right;
 
-    TreeNode(const Team& t) {   //& t±íÊ¾ÒıÓÃ²»ÊÇ¿½±´
-        team = t;       // ³õÊ¼»¯½ÚµãµÄ team ³ÉÔ±
-        left = nullptr;  // ³õÊ¼»¯×ó×ÓÊ÷Ö¸ÕëÎª¿ÕÖ¸Õë
-        right = nullptr; // ³õÊ¼»¯ÓÒ×ÓÊ÷Ö¸ÕëÎª¿ÕÖ¸Õë
+    TreeNode(const Team& t) {   //& tè¡¨ç¤ºå¼•ç”¨ä¸æ˜¯æ‹·è´
+        team = t;       // åˆå§‹åŒ–èŠ‚ç‚¹çš„ team æˆå‘˜
+        left = nullptr;  // åˆå§‹åŒ–å·¦å­æ ‘æŒ‡é’ˆä¸ºç©ºæŒ‡é’ˆ
+        right = nullptr; // åˆå§‹åŒ–å³å­æ ‘æŒ‡é’ˆä¸ºç©ºæŒ‡é’ˆ
     }
 
 };
 
-// ²åÈë½Úµãµ½¶ş²æÅÅĞòÊ÷
+// æ’å…¥èŠ‚ç‚¹åˆ°äºŒå‰æ’åºæ ‘
 TreeNode* insert(TreeNode* root, const Team& team) {
     if (root == nullptr) {
         return new TreeNode(team);
@@ -46,10 +46,10 @@ TreeNode* insert(TreeNode* root, const Team& team) {
     return root;
 }
 
-// ¸ù¾İ²ÎÈü¶Ó±àºÅ²éÕÒ½Úµã
+// æ ¹æ®å‚èµ›é˜Ÿç¼–å·æŸ¥æ‰¾èŠ‚ç‚¹
 TreeNode* search(TreeNode* root, int teamNumber, int& asl, int depth = 1) {
     if (root == nullptr) {
-        asl += depth;  // Í³¼ÆÆ½¾ù²éÕÒ³¤¶È
+        asl += depth;  // ç»Ÿè®¡å¹³å‡æŸ¥æ‰¾é•¿åº¦
         return nullptr;
     }
 
@@ -64,11 +64,11 @@ TreeNode* search(TreeNode* root, int teamNumber, int& asl, int depth = 1) {
     }
 }
 
-// ¶ÁÈ¡team.txtÎÄ¼ş£¬¹¹½¨¶ş²æÅÅĞòÊ÷
+// è¯»å–team.txtæ–‡ä»¶ï¼Œæ„å»ºäºŒå‰æ’åºæ ‘
 TreeNode* buildBSTFromFile(const string& filename) {
     ifstream file(filename);
     if (!file.is_open()) {
-        cerr << "´ò¿ªÎÄ¼ş´íÎó: " << filename << endl;
+        cerr << "æ‰“å¼€æ–‡ä»¶é”™è¯¯: " << filename << endl;
         return nullptr;
     }
 
@@ -86,8 +86,8 @@ TreeNode* buildBSTFromFile(const string& filename) {
         getline(iss, team.participant, '#');
         getline(iss, team.teacher, '#');
 
-        // ·ÖÅä³õÈü³É¼¨
-        team.preliminaryScore = rand() % 41 + 60;  // 60~100Ö®¼äµÄËæ»úÊı
+        // åˆ†é…åˆèµ›æˆç»©
+        team.preliminaryScore = rand() % 41 + 60;  // 60~100ä¹‹é—´çš„éšæœºæ•°
 
         root = insert(root, team);
     }
@@ -96,40 +96,40 @@ TreeNode* buildBSTFromFile(const string& filename) {
     return root;
 }
 
-// Êä³ö²ÎÈü¶ÓÎéĞÅÏ¢
+// è¾“å‡ºå‚èµ›é˜Ÿä¼ä¿¡æ¯
 void printTeamInfo(const Team& team) {
-    cout << "²ÎÈü¶Ó±àºÅ: " << team.teamNumber << endl;
-    cout << "²ÎÈü×÷Æ·Ãû³Æ: " << team.projectName << endl;
-    cout << "²ÎÈüÑ§Ğ£: " << team.school << endl;
-    cout << "ÈüÊÂÀà±ğ: " << team.eventCategory << endl;
-    cout << "²ÎÈüÕß: " << team.participant << endl;
-    cout << "Ö¸µ¼½ÌÊ¦: " << team.teacher << endl;
-    cout << "³õÈü³É¼¨: " << team.preliminaryScore << endl;
+    cout << "å‚èµ›é˜Ÿç¼–å·: " << team.teamNumber << endl;
+    cout << "å‚èµ›ä½œå“åç§°: " << team.projectName << endl;
+    cout << "å‚èµ›å­¦æ ¡: " << team.school << endl;
+    cout << "èµ›äº‹ç±»åˆ«: " << team.eventCategory << endl;
+    cout << "å‚èµ›è€…: " << team.participant << endl;
+    cout << "æŒ‡å¯¼æ•™å¸ˆ: " << team.teacher << endl;
+    cout << "åˆèµ›æˆç»©: " << team.preliminaryScore << endl;
     cout << "-----------------------------" << endl;
 }
 
-//²éÑ¯²ÎÈü¶ÓÎé³É¼¨
+//æŸ¥è¯¢å‚èµ›é˜Ÿä¼æˆç»©
 void queryPreliminaryScore(TreeNode* root)
 {
     int teamNumber;
-    cout << "ÇëÊäÈë²ÎÈü¶Ó±àºÅ½øĞĞ²éÑ¯£º";
+    cout << "è¯·è¾“å…¥å‚èµ›é˜Ÿç¼–å·è¿›è¡ŒæŸ¥è¯¢ï¼š";
     cin >> teamNumber;
 
-    int asl = 0;  // Æ½¾ù²éÕÒ³¤¶È
+    int asl = 0;  // å¹³å‡æŸ¥æ‰¾é•¿åº¦
     TreeNode* result = search(root, teamNumber, asl);
 
     if (result != nullptr) {
-        cout << "²éÕÒ³É¹¦£¡" << endl;
+        cout << "æŸ¥æ‰¾æˆåŠŸï¼" << endl;
         printTeamInfo(result->team);
     }
     else {
-        cout << "Î´ÕÒµ½¶ÔÓ¦²ÎÈü¶ÓÎé¡£" << endl;
+        cout << "æœªæ‰¾åˆ°å¯¹åº”å‚èµ›é˜Ÿä¼ã€‚" << endl;
     }
 
-    // ¼ÆËãÆ½¾ù²éÕÒ³¤¶È
-    int totalNodes = 4;  // ¼ÙÉèÓĞ4¸ö²ÎÈü¶Ó
+    // è®¡ç®—å¹³å‡æŸ¥æ‰¾é•¿åº¦
+    int totalNodes = 4;  // å‡è®¾æœ‰4ä¸ªå‚èµ›é˜Ÿ
     double averageASL = static_cast<double>(asl) / totalNodes;
-    cout << "Æ½¾ù²éÕÒ³¤¶È (ASL): " << averageASL << endl;
+    cout << "å¹³å‡æŸ¥æ‰¾é•¿åº¦ (ASL): " << averageASL << endl;
 }
 
 int main() {
@@ -139,14 +139,14 @@ int main() {
         return 1;
     }
     while (true) {
-        cout << "------------ÈüÊÂĞÅÏ¢¹ÜÀíÏµÍ³------------" << endl;
-        cout << "1.ĞŞ¸Ä²ÎÈü¶ÓÎéĞÅÏ¢" << endl;
-        cout << "2.Ôö¼Ó²ÎÈü¶ÓÎé" << endl;
-        cout << "3.ä¯ÀÀ²ÎÈü¶ÓÎé" << endl;
-        cout << "4.²éÑ¯²ÎÈü¶ÓÎé³É¼¨" << endl;
-        cout << "5.½øÈë¾öÈüÏÖ³¡Ä£Äâ" << endl;
-        cout << "6.µØÍ¼µ¼º½" << endl;
-        cout << "<-------ÊäÈë¹¦ÄÜÇ°Êı×Ö£¬»Ø³µ-------->" << endl;
+        cout << "------------èµ›äº‹ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ------------" << endl;
+        cout << "1.ä¿®æ”¹å‚èµ›é˜Ÿä¼ä¿¡æ¯" << endl;
+        cout << "2.å¢åŠ å‚èµ›é˜Ÿä¼" << endl;
+        cout << "3.æµè§ˆå‚èµ›é˜Ÿä¼" << endl;
+        cout << "4.æŸ¥è¯¢å‚èµ›é˜Ÿä¼æˆç»©" << endl;
+        cout << "5.è¿›å…¥å†³èµ›ç°åœºæ¨¡æ‹Ÿ" << endl;
+        cout << "6.åœ°å›¾å¯¼èˆª" << endl;
+        cout << "<-------è¾“å…¥åŠŸèƒ½å‰æ•°å­—ï¼Œå›è½¦-------->" << endl;
 
         int choice;
         std::cin >> choice;
@@ -165,19 +165,19 @@ int main() {
             queryPreliminaryScore(root);
             break;
         case 5:
-            cout << "½øÈë¾öÈüÏÖ³¡Ä£Äâ..." << endl;
+            cout << "è¿›å…¥å†³èµ›ç°åœºæ¨¡æ‹Ÿ..." << endl;
             break;
         case 6:
-            cout << "µØÍ¼µ¼º½..." << endl;
+            cout << "åœ°å›¾å¯¼èˆª..." << endl;
             break;
         default:
-            cout << "ÎŞĞ§µÄÑ¡Ïî£¬ÇëÖØĞÂÊäÈë¡£" << endl;
+            cout << "æ— æ•ˆçš„é€‰é¡¹ï¼Œè¯·é‡æ–°è¾“å…¥ã€‚" << endl;
         }
     }
 
 
-    // ÊÍ·Å¶ş²æÅÅĞòÊ÷µÄÄÚ´æ
-    // ´Ë´¦Ê¡ÂÔÊÍ·ÅÄÚ´æµÄ´úÂë£¬Êµ¼ÊÏîÄ¿ÖĞĞèÒª×¢ÒâÄÚ´æ¹ÜÀí
+    // é‡Šæ”¾äºŒå‰æ’åºæ ‘çš„å†…å­˜
+    // æ­¤å¤„çœç•¥é‡Šæ”¾å†…å­˜çš„ä»£ç ï¼Œå®é™…é¡¹ç›®ä¸­éœ€è¦æ³¨æ„å†…å­˜ç®¡ç†
 
     return 0;
 }
