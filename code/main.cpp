@@ -2,8 +2,18 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <algorithm>  // 添加这个头文件以使用排序算法
+#include <vector>
+#include <queue>
+#include <map>
+#include <functional>
+#include <chrono>
+#include <iomanip>
+
+
 
 using namespace std;
+
 
 // 定义参赛队伍的数据结构
 struct Team {
@@ -11,6 +21,7 @@ struct Team {
     string projectName;   //项目名称
     string school;   //学校
     string eventCategory;   //赛事类别
+    int FinalsRoom;
     string participant;  //参赛者
     string teacher;  //指导老师
     int preliminaryScore;  // 初赛成绩
@@ -29,7 +40,6 @@ struct TreeNode {
     }
 
 };
-
 
 
 
@@ -82,14 +92,15 @@ TreeNode* buildBSTFromFile(const string& filename) {
     while (getline(file, line)) {
         istringstream iss(line);
         Team team;
-
-        iss >> team.teamNumber;
+		iss >> team.teamNumber; 
         //cout<< team.teamNumber<<endl;
-        getline(iss, temp, '#');    
+        getline(iss, temp, '#');  
         getline(iss, team.projectName, '#');
         //cout<< team.projectName<<endl;
         getline(iss, team.school, '#');
         getline(iss, team.eventCategory, '#');
+        iss >> team.FinalsRoom;
+        getline(iss, temp, '#'); 
         getline(iss, team.participant, '#');
         getline(iss, team.teacher, '#');
 
@@ -156,6 +167,7 @@ TreeNode* Traverse(TreeNode* root)
 		Traverse(root->right);
 	}
  }
+ 
  //修改参赛队伍信息
 void modifyTeamInfo(TreeNode* root)
 {
@@ -262,6 +274,7 @@ void addTeam(TreeNode* root)
     cout << "指导教师: ";
     cin >> addteam.teacher;
     addteam.preliminaryScore=rand() % 41 + 60;  // 60~100之间的随机数
+    addteam.FinalsRoom=0;
     cout<<"增加的"; 
     printTeamInfo(addteam);
     insert(root, addteam);  //插入到二叉排序树
@@ -270,12 +283,125 @@ void addTeam(TreeNode* root)
 	return ; 
     
  } 
+
+// 在Team结构体中添加比较函数，用于排序
+bool compareTeams(const Team& team1, const Team& team2) {
+    return team1.preliminaryScore > team2.preliminaryScore;
+}
+
+// 根据FinalsRoom生成决赛秩序册
+map<int, vector<Team>> generateFinalsOrder(TreeNode* root) {
+    map<int, vector<Team>> finalsOrder;
+
+    // 使用function模板声明addToFinalsOrder
+    function<void(TreeNode*)> addToFinalsOrder;
+
+    // 遍历二叉排序树，将参赛队伍按照FinalsRoom放入对应的容器中
+    addToFinalsOrder = [&](TreeNode* node) {
+        if (node != nullptr) {
+            finalsOrder[node->team.FinalsRoom].push_back(node->team);
+            addToFinalsOrder(node->left);
+            addToFinalsOrder(node->right);
+        }
+    };
+
+    addToFinalsOrder(root);
+
+    // 对每个容器中的队伍按照初赛成绩降序排列
+    for (auto& entry : finalsOrder) {
+        sort(entry.second.begin(), entry.second.end(), compareTeams);
+    }
+
+    return finalsOrder;
+}
+
+// 显示指定决赛室中每只队伍的teamNumber、school、participant
+void displayFinalsRoomInfo(const map<int, vector<Team>>& finalsOrder, int finalsRoomNumber) {
+    auto it = finalsOrder.find(finalsRoomNumber);
+    if (it != finalsOrder.end()) {
+        cout << "决赛室编号 " << finalsRoomNumber << " 中的参赛队伍信息：" << endl;
+        for (const Team& team : it->second) {
+            cout << "参赛队编号: " << team.teamNumber << " 学校: " << team.school << " 参赛者: " << team.participant << " 初赛成绩: " << team.preliminaryScore<< endl;
+        }
+    } else {
+        cout << "未找到对应决赛室编号的参赛队伍信息。" << endl;
+    }
+}
+
+// 显示指定决赛室中指定支队伍的编号
+int displaySpecificTeamInfo(const map<int, vector<Team>>& finalsOrder, int finalsRoomNumber, size_t teamIndex) {
+    auto it = finalsOrder.find(finalsRoomNumber);
+    if (it != finalsOrder.end() && teamIndex < it->second.size()) {
+        const Team& team = it->second[teamIndex];
+        return team.teamNumber;
+    } else {
+        return 0;
+    }
+}
+
+void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
+{
+	int LastTeam=0,currTeam=0,preTeam=1,endT;
+	while(1){
+		endT=0;
+		for(int i=1;i<=17;i++)
+		{
+			cout<<"正在决赛队伍编号：";
+			if(displaySpecificTeamInfo(finalsOrder,i,currTeam)==0)
+			{
+				cout << "None";
+				endT++;
+			}
+			else
+			{
+				cout <<displaySpecificTeamInfo(finalsOrder,i,currTeam);
+			}
+			cout<<"侯赛编号：";
+			if(displaySpecificTeamInfo(finalsOrder,i,preTeam)==0)
+			{
+				cout << "None";
+			}
+			else
+			{
+				cout <<displaySpecificTeamInfo(finalsOrder,i,preTeam);
+			}
+			cout<<"已结束队伍编号：";
+			if(LastTeam==0)
+			{
+				cout << "None";
+			}
+			else
+			{
+				if(displaySpecificTeamInfo(finalsOrder,i,LastTeam)==0)
+				{
+					cout << "None";
+				}
+				else
+				{
+					cout<<displaySpecificTeamInfo(finalsOrder,i,LastTeam);
+				}
+			}
+			cout<<endl;
+			
+		}
+		currTeam++;
+		LastTeam++;
+		preTeam++;
+		if(endT==17)break;
+	}
+	
+}
+
+
 int main() {
-    TreeNode* root = buildBSTFromFile("team.txt");
+	
+    TreeNode* root = buildBSTFromFile("categoryteam.txt");
 
     if (root == nullptr) {
         return 1;
     }
+    map<int, vector<Team>> finalsOrder = generateFinalsOrder(root);
+    
     while (true) {
         cout << "------------赛事信息管理系统------------" << endl;
         cout << "1.修改参赛队伍信息" << endl;
@@ -303,7 +429,28 @@ int main() {
             queryPreliminaryScore(root);
             break;
         case 5:
-            cout << "进入决赛现场模拟..." << endl;
+            cout << "<-----决赛现场模拟----->" << endl;
+            cout << "1.决赛室队伍查询" << endl;
+            cout << "2.模拟决赛秩序" << endl;
+            cout << "<---------------------->" << endl;
+            int Fchoice;
+            cin>>Fchoice;
+            switch (Fchoice) {
+				case 1:
+				    // 用户输入决赛室编号
+				    int finalsRoomNumber;
+				    cout << "请输入所要查询的决赛室编号(数字1~17)：";
+				    cin >> finalsRoomNumber;
+				    // 显示指定决赛室中每只队伍的teamNumber、school、participant以及初赛成绩
+				    displayFinalsRoomInfo(finalsOrder, finalsRoomNumber);
+					break;
+				case 2:
+					AnalogInterface(finalsOrder);
+					break;
+				default:
+					break;
+			}
+
             break;
         case 6:
             cout << "地图导航..." << endl;
@@ -312,6 +459,7 @@ int main() {
             cout << "无效的选项，请重新输入。" << endl;
         }
     }
+
 
 
     // 释放二叉排序树的内存
