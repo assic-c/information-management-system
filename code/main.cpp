@@ -9,7 +9,7 @@
 #include <functional>
 #include <chrono>
 #include <iomanip>
-
+#include<unistd.h>
 
 
 using namespace std;
@@ -339,13 +339,17 @@ int displaySpecificTeamInfo(const map<int, vector<Team>>& finalsOrder, int final
     }
 }
 
+
+
 void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
 {
 	int LastTeam=0,currTeam=0,preTeam=1,endT;
 	while(1){
 		endT=0;
+		system("cls");
 		for(int i=1;i<=17;i++)
 		{
+			
 			cout<<"正在决赛队伍编号：";
 			if(displaySpecificTeamInfo(finalsOrder,i,currTeam)==0)
 			{
@@ -383,7 +387,11 @@ void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
 			}
 			cout<<endl;
 			
+			
+			
 		}
+		sleep(1);//延迟
+		
 		currTeam++;
 		LastTeam++;
 		preTeam++;
