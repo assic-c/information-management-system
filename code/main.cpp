@@ -4,15 +4,59 @@
 #include <string>
 #include <algorithm>  // 添加这个头文件以使用排序算法
 #include <vector>
-#include <queue>
 #include <map>
 #include <functional>
-#include <chrono>
-#include <iomanip>
-#include<unistd.h>
-
+#include<unistd.h>  //延迟
+#include <stack>   //引入栈
+#include <climits>  //引入INT_MAX  INT_MAX用于初始化最短路径长度
 
 using namespace std;
+
+const int MAX_VERTICES = 16;
+// 邻接矩阵表示的图
+int adjacencyMatrix[MAX_VERTICES][MAX_VERTICES] = {
+    {0, 100, 0, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 125, 0, 0},
+    {100, 0, 80, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100},
+    {0, 80, 0, 0, 120, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 80},
+    {200, 150, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 60, 120, 0, 0},
+    {0, 0, 120, 50, 0, 0, 0, 150, 230, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 110, 0, 0, 0, 80, 60, 0, 0, 0, 0, 0, 0, 0, 100},
+    {0, 0, 0, 0, 0, 80, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 150, 60, 0, 0, 90, 70, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 230, 0, 0, 90, 0, 50, 210, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 100, 70, 50, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 210, 0, 0, 40, 0, 0, 100, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 0, 110, 0, 0, 0},
+    {0, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0, 110, 0, 120, 90, 0},
+    {125, 0, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 120, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 90, 0, 0, 0},
+    {0, 100, 80, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+};
+int shortestPathLength = INT_MAX;
+vector<int> shortestPath;
+
+string MapName[17]={"","明德楼","经世楼","文理大楼","计算机学院","经管学院","能动学院","机械学院","重装实验室","船建楼","行政大楼","图书馆","笃学楼","材料/生技学院","文体中心","西区食堂","东区食堂"};
+	
+
+void DFS(int start, int end, vector<bool>& visited, vector<int>& path, int currentLength) {
+    visited[start] = true;
+    path.push_back(start);
+
+    if (start == end && currentLength < shortestPathLength) {
+        shortestPathLength = currentLength;
+        shortestPath = path;
+    }
+
+    for (int i = 0; i < MAX_VERTICES; ++i) {
+        if (adjacencyMatrix[start][i] > 0 && !visited[i]) {
+            DFS(i, end, visited, path, currentLength + adjacencyMatrix[start][i]);
+        }
+    }
+
+    visited[start] = false;
+    path.pop_back();
+}
+
 
 
 // 定义参赛队伍的数据结构
@@ -166,8 +210,8 @@ TreeNode* Traverse(TreeNode* root)
 		printTeamInfo(root->right->team);
 		Traverse(root->right);
 	}
+	return nullptr;
  }
- 
  //修改参赛队伍信息
 void modifyTeamInfo(TreeNode* root)
 {
@@ -400,6 +444,33 @@ void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
 	
 }
 
+void Findmap(int start,int end)
+{
+
+
+    --start;
+    --end;
+
+    vector<bool> visited(MAX_VERTICES, false);
+    vector<int> path;
+
+    DFS(start, end, visited, path, 0);
+
+    if (shortestPathLength == INT_MAX) {
+        cout << "起点到终点之间没有路径" << endl;
+    } else {
+        cout <<MapName[start + 1]<<" -> "<<MapName[ end + 1]<< "的最短路径长度为：" << shortestPathLength << endl;
+        cout <<MapName[start + 1]<<" -> "<<MapName[ end + 1]<< "的最短路径为：";
+        int shortestpathsize=shortestPath.size();
+        for (int i = 0; i < shortestpathsize; ++i) {
+            cout <<MapName[shortestPath[i] + 1];
+            if (i < shortestpathsize - 1) {
+                cout << " -> ";
+            }
+        }
+        cout << endl;
+    }
+}
 
 int main() {
 	
@@ -409,16 +480,17 @@ int main() {
         return 1;
     }
     map<int, vector<Team>> finalsOrder = generateFinalsOrder(root);
-    
+    int start, end;//用于地图导航
     while (true) {
-        cout << "------------赛事信息管理系统------------" << endl;
+        cout << "<-----------赛事信息管理系统---------->" << endl;
         cout << "1.修改参赛队伍信息" << endl;
         cout << "2.增加参赛队伍" << endl;
         cout << "3.浏览参赛队伍" << endl;
         cout << "4.查询参赛队伍成绩" << endl;
         cout << "5.进入决赛现场模拟" << endl;
         cout << "6.地图导航" << endl;
-        cout << "<-------输入功能前数字，回车-------->" << endl;
+        cout << "7.清屏" << endl;
+        cout << "<--------输入功能前数字，回车--------->" << endl;
 
         int choice;
         cin >> choice;
@@ -461,8 +533,25 @@ int main() {
 
             break;
         case 6:
-            cout << "地图导航..." << endl;
+            cout <<"<---------------------地图导航----------------------->" << endl;
+            cout<<"1:明德楼 2：经世楼 3：文理大楼 4：计算机学院"<<endl;
+            cout<<" 5：经管学院 6:能动学院 7：机械学院 8：重装实验室"<<endl;
+            cout<<"9:船建楼 10：行政大楼 11：图书馆 12：笃学楼"<<endl;
+            cout<<" 13：材料/生技学院 14:文体中心 15：西区食堂 16：东区食堂"<<endl;
+            cout<<"<-------------------输入序号以查询-------------------->"<<endl;
+		    cout << "请输入起点：";
+		    cin >> start;
+		    cout << "请输入终点：";
+		    cin >> end;
+		    if (start < 1 || start > MAX_VERTICES || end < 1 || end > MAX_VERTICES) {
+		        cout << "输入的起点或终点不合法" << endl;
+		        break;
+		    }
+		    Findmap(start,end);
             break;
+        case 7:
+        	system("cls");
+        	break;
         default:
             cout << "无效的选项，请重新输入。" << endl;
         }
