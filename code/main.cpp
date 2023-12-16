@@ -37,7 +37,7 @@ vector<int> shortestPath;
 
 string MapName[17]={"","明德楼","经世楼","文理大楼","计算机学院","经管学院","能动学院","机械学院","重装实验室","船建楼","行政大楼","图书馆","笃学楼","材料/生技学院","文体中心","西区食堂","东区食堂"};
 	
-
+//深度优先搜索算法实现
 void DFS(int start, int end, vector<bool>& visited, vector<int>& path, int currentLength) {
     visited[start] = true;
     path.push_back(start);
@@ -56,8 +56,6 @@ void DFS(int start, int end, vector<bool>& visited, vector<int>& path, int curre
     visited[start] = false;
     path.pop_back();
 }
-
-
 
 // 定义参赛队伍的数据结构
 struct Team {
@@ -85,9 +83,6 @@ struct TreeNode {
 
 };
 
-
-
-
 // 插入节点到二叉排序树
 TreeNode* insert(TreeNode* root, const Team& team) {
     if (root == nullptr) {
@@ -105,9 +100,8 @@ TreeNode* insert(TreeNode* root, const Team& team) {
 }
 
 // 根据参赛队编号查找节点
-TreeNode* search(TreeNode* root, int teamNumber, int& asl, int depth = 1) {
+TreeNode* search(TreeNode* root, int teamNumber) {
     if (root == nullptr) {
-        asl += depth;  // 统计平均查找长度
         return nullptr;
     }
 
@@ -115,10 +109,43 @@ TreeNode* search(TreeNode* root, int teamNumber, int& asl, int depth = 1) {
         return root;
     }
     else if (teamNumber < root->team.teamNumber) {
-        return search(root->left, teamNumber, asl, depth + 1);
+        return search(root->left, teamNumber);
     }
     else {
-        return search(root->right, teamNumber, asl, depth + 1);
+        return search(root->right, teamNumber);
+    }
+}
+
+// 中序遍历二叉排序树，并计算每个节点的深度和节点个数
+void inOrderTraversal(TreeNode* root, int depth, int& nodeCount, int& totalDepth) {
+    if (root == nullptr) {
+        return;
+    }
+
+    // 递归遍历左子树
+    inOrderTraversal(root->left, depth + 1, nodeCount, totalDepth);
+
+    // 处理当前节点
+    nodeCount++;
+    totalDepth += depth;
+
+    // 递归遍历右子树
+    inOrderTraversal(root->right, depth + 1, nodeCount, totalDepth);
+}
+
+// 计算二叉排序树的平均查找长度
+double calculateASL(TreeNode* root) {
+    int nodeCount = 0;
+    int totalDepth = 0;
+
+    // 中序遍历二叉排序树
+    inOrderTraversal(root, 0, nodeCount, totalDepth);
+
+    // 计算平均查找长度
+    if (nodeCount > 0) {
+        return static_cast<double>(totalDepth) / nodeCount;
+    } else {
+        return 0.0;
     }
 }
 
@@ -177,10 +204,8 @@ void queryPreliminaryScore(TreeNode* root)
     int teamNumber;
     cout << "请输入参赛队编号进行查询：";
     cin >> teamNumber;
-
-    int asl = 0;  // 平均查找长度
-    TreeNode* result = search(root, teamNumber, asl);
-
+    
+    TreeNode* result = search(root, teamNumber);
     if (result != nullptr) {
         cout << "查找成功！" << endl;
         printTeamInfo(result->team);
@@ -188,12 +213,11 @@ void queryPreliminaryScore(TreeNode* root)
     else {
         cout << "未找到对应参赛队伍。" << endl;
     }
-
-    // 计算平均查找长度
-    int totalNodes = 4;  // 假设有4个参赛队
-    double averageASL = static_cast<double>(asl) / totalNodes;
-    cout << "平均查找长度 (ASL): " << averageASL << endl;
+    
+    cout << "平均查找长度 (ASL): " <<calculateASL(root)<< endl;
+    
 }
+
 
 //二叉排序树的遍历
 TreeNode* Traverse(TreeNode* root)
@@ -218,9 +242,8 @@ void modifyTeamInfo(TreeNode* root)
     int teamNumber;
     cout << "请输入需要修改的参赛队伍编号：";
     cin >> teamNumber;
-
-    int asl = 0;  // 平均查找长度
-    TreeNode* result = search(root, teamNumber, asl);
+    
+    TreeNode* result = search(root, teamNumber);
 
     if (result != nullptr) {
         printTeamInfo(result->team);
@@ -318,7 +341,7 @@ void addTeam(TreeNode* root)
     cout << "指导教师: ";
     cin >> addteam.teacher;
     addteam.preliminaryScore=rand() % 41 + 60;  // 60~100之间的随机数
-    addteam.FinalsRoom=0;
+    addteam.FinalsRoom=rand() % 17 + 1;  //随机分配到1~17之间的某个决赛室
     cout<<"增加的"; 
     printTeamInfo(addteam);
     insert(root, addteam);  //插入到二叉排序树
@@ -383,8 +406,7 @@ int displaySpecificTeamInfo(const map<int, vector<Team>>& finalsOrder, int final
     }
 }
 
-
-
+//滚动屏幕模拟实现
 void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
 {
 	int LastTeam=0,currTeam=0,preTeam=1,endT;
@@ -444,7 +466,7 @@ void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
 	
 }
 
-void Findmap(int start,int end)
+void Findmap(int start,int end)  //查找
 {
 
 
@@ -470,6 +492,48 @@ void Findmap(int start,int end)
         }
         cout << endl;
     }
+}
+
+// 内存释放操作
+void freeMemory(TreeNode* root) {
+    if (root == nullptr) {
+        return;
+    }
+
+    freeMemory(root->left);
+    freeMemory(root->right);
+
+    delete root;
+}
+
+// 遍历并保存队伍信息到文件
+void TraverseAndSave(TreeNode* root, ofstream& file) {
+    if (root == nullptr) {
+        return;
+    }
+
+    TraverseAndSave(root->left, file);
+
+    // 将队伍信息写入文件
+    file << root->team.teamNumber << '#' << root->team.projectName << '#'
+         << root->team.school << '#' << root->team.eventCategory << '#'
+         << root->team.FinalsRoom << '#' << root->team.participant << '#'
+         << root->team.teacher << '#'<< '\n';
+
+    TraverseAndSave(root->right, file);
+}
+// 保存队伍信息到文件
+void saveToFile(TreeNode* root, const string& filename) {
+    ofstream file(filename);
+    if (!file.is_open()) {
+        cerr << "保存文件错误: " << filename << endl;
+        return;
+    }
+
+    // 遍历二叉排序树，将队伍信息写入文件
+    TraverseAndSave(root, file);
+
+    file.close();
 }
 
 int main() {
@@ -498,9 +562,11 @@ int main() {
         switch (choice) {
         case 1:
             modifyTeamInfo(root);
+            saveToFile(root,"categoryteam.txt");
             break;
         case 2:
             addTeam(root);
+            saveToFile(root,"categoryteam.txt");
             break;
         case 3:
             Traverse(root);
@@ -557,9 +623,9 @@ int main() {
         }
     }
 
-
+	
 
     // 释放二叉排序树的内存
-
+	freeMemory(root);
     return 0;
 }
