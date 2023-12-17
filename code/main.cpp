@@ -546,6 +546,7 @@ int main() {
     }
     map<int, vector<Team>> finalsOrder = generateFinalsOrder(root);
     int start, end;//用于地图导航
+	system("color F0");
     while (true) {
         cout << "<-----------赛事信息管理系统---------->" << endl;
         cout << "1.修改参赛队伍信息" << endl;
