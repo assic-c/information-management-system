@@ -413,6 +413,7 @@ void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
 	while(1){
 		endT=0;
 		system("cls");
+		system("color F4");
 		for(int i=1;i<=17;i++)
 		{
 			
@@ -592,6 +593,8 @@ int main() {
 					break;
 				case 2:
 					AnalogInterface(finalsOrder);
+					system("cls");
+					system("color F0");
 					break;
 				default:
 					break;
