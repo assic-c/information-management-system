@@ -36,7 +36,22 @@ int shortestPathLength = INT_MAX;
 vector<int> shortestPath;
 
 string MapName[17]={"","明德楼","经世楼","文理大楼","计算机学院","经管学院","能动学院","机械学院","重装实验室","船建楼","行政大楼","图书馆","笃学楼","材料/生技学院","文体中心","西区食堂","东区食堂"};
-	
+string LandmarkIT[17]={"","教学楼之一，内具备多个多媒体教室和各种功能教室。",
+						"教学楼之一，内具备多个多媒体教室和各种功能教室。",
+						"文理大楼",
+						"笃学明德承船魂，经世致用济沧海。计算机学院践行与国家、民族同呼吸共命运的一贯宗旨，秉承江苏科技大学深厚的“船魂”精神，围绕建设江苏高水平大学的战略任务、“国内一流造船大学”的战略目标，致力于培育肩负“兴船报国”使命的新时代科技人才。",
+						"财力雄厚",
+						"能动学子学习的地方",
+						"机械学子拧螺丝的地方",
+						"顾名思义",
+						"JUST特色专业所在地。",
+						"办事的地方",
+						"学习的好地方",
+						"教学楼之一，内具备多个多媒体教室和各种功能教室。",
+						"材料学子拼搏的地方。",
+						"内设有室内羽毛球馆，篮球馆，排球馆，健身房，舞蹈房等多种室内体育锻炼场所。",
+						"吃饭的地方，价格便宜",
+						"不太便宜的样子，不过香锅不错"};	
 //深度优先搜索算法实现
 void DFS(int start, int end, vector<bool>& visited, vector<int>& path, int currentLength) {
     visited[start] = true;
@@ -67,6 +82,7 @@ struct Team {
     string participant;  //参赛者
     string teacher;  //指导老师
     int preliminaryScore;  // 初赛成绩
+    int MatchTime;
 };
 
 // 定义二叉排序树的节点结构
@@ -177,7 +193,7 @@ TreeNode* buildBSTFromFile(const string& filename) {
 
         // 分配初赛成绩
         team.preliminaryScore = rand() % 41 + 60;  // 60~100之间的随机数
-
+		team.MatchTime=rand() % 16 + 8;  //随机分配到8~22分钟作为比赛时间 
         root = insert(root, team);
     }
 
@@ -342,6 +358,7 @@ void addTeam(TreeNode* root)
     cin >> addteam.teacher;
     addteam.preliminaryScore=rand() % 41 + 60;  // 60~100之间的随机数
     addteam.FinalsRoom=rand() % 17 + 1;  //随机分配到1~17之间的某个决赛室
+    addteam.MatchTime=rand() % 16 + 8;  //随机分配到8~22分钟作为比赛时间 
     cout<<"增加的"; 
     printTeamInfo(addteam);
     insert(root, addteam);  //插入到二叉排序树
@@ -466,7 +483,7 @@ void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
 	}
 	
 }
-
+ 
 void Findmap(int start,int end)  //查找
 {
 
@@ -608,16 +625,31 @@ int main() {
             cout<<" 5：经管学院 6:能动学院 7：机械学院 8：重装实验室"<<endl;
             cout<<"9:船建楼 10：行政大楼 11：图书馆 12：笃学楼"<<endl;
             cout<<" 13：材料/生技学院 14:文体中心 15：西区食堂 16：东区食堂"<<endl;
+            cout<<"<----------------------------------------------------->"<<endl;
+            cout << "1.地标相关信息查询" << endl;
+            cout << "2.问路查询" << endl;
             cout<<"<-------------------输入序号以查询-------------------->"<<endl;
-		    cout << "请输入起点：";
-		    cin >> start;
-		    cout << "请输入终点：";
-		    cin >> end;
-		    if (start < 1 || start > MAX_VERTICES || end < 1 || end > MAX_VERTICES) {
-		        cout << "输入的起点或终点不合法" << endl;
-		        break;
-		    }
-		    Findmap(start,end);
+            int Mchoice;
+            cin>>Mchoice;
+            switch(Mchoice)
+			{
+				case 1:
+					int LandMark;
+					cin>>LandMark;
+					cout<<LandmarkIT[LandMark]<<endl;
+					break;
+				case 2:
+				    cout << "请输入起点：";
+				    cin >> start;
+				    cout << "请输入终点：";
+				    cin >> end;
+				    if (start < 1 || start > MAX_VERTICES || end < 1 || end > MAX_VERTICES) {
+				        cout << "输入的起点或终点不合法" << endl;
+				        break;
+				    }
+				    Findmap(start,end);	
+					break;					
+			 } 
             break;
         case 7:
         	system("cls");
@@ -633,3 +665,4 @@ int main() {
 	freeMemory(root);
     return 0;
 }
+
