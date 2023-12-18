@@ -9,6 +9,7 @@
 #include<unistd.h>  //延迟
 #include <stack>   //引入栈
 #include <climits>  //引入INT_MAX  INT_MAX用于初始化最短路径长度
+#include <thread>
 
 using namespace std;
 
@@ -422,36 +423,82 @@ int displaySpecificTeamInfo(const map<int, vector<Team>>& finalsOrder, int final
         return 0;
     }
 }
+// 显示指定决赛室中指定支队伍的时间 
+int displaySpecificTeamTime(const map<int, vector<Team>>& finalsOrder, int finalsRoomNumber, size_t teamIndex) {
+    auto it = finalsOrder.find(finalsRoomNumber);
+    if (it != finalsOrder.end() && teamIndex < it->second.size()) {
+        const Team& team = it->second[teamIndex];
+        return team.MatchTime;
+    } else {
+        return 9999999;
+    }
+}
+
+int lasteam[18];//用于存储上一个决赛室所在队伍 
+int Nowteam[18];//用于存储当前决赛室所在队伍 
+int preteam[18];//用于存储下一个决赛室所在队伍
+int totaltime[18]; //每只决赛室累计的时间 
+int timeline=0;//时间线 
+int endT; //判断时间线停止条件 
+void Timeliner()
+{
+	while(endT!=17)
+	{
+		timeline++;
+		usleep(10000);		
+	}
+	return ;
+}
 
 //滚动屏幕模拟实现
 void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
 {
-	int LastTeam=0,currTeam=0,preTeam=1,endT;
+	timeline=0;
+	lasteam[18]={0};
+	Nowteam[18]={0}; 
+	preteam[18]={0};
+	int LastTeam=0,currTeam=0,preTeam=1;
+	for(int i=0;i<=17;i++)//初始化totaltime 
+	{
+		totaltime[i]=displaySpecificTeamTime(finalsOrder,i,0);
+	}
+	for(int i=0;i<=17;i++)preteam[i]=1;//初始化preteam数组为1 
+	for(int i=0;i<=17;i++)lasteam[i]=-1;//初始化lasteam数组为-1
 	while(1){
+		
 		endT=0;
 		system("cls");
-		system("color F4");
+		system("color 04");
+		cout<<"时间线："<<timeline<<endl; 
+
 		for(int i=1;i<=17;i++)
 		{
+			if(totaltime[i]<timeline)
+			{
+				Nowteam[i]++;
+				preteam[i]++;
+				lasteam[i]++;
+				totaltime[i]+=displaySpecificTeamTime(finalsOrder,i,Nowteam[i]);  //加入到i决赛室的总时间中 
+			 } 			
 			
 			cout<<"正在决赛队伍编号：";
-			if(displaySpecificTeamInfo(finalsOrder,i,currTeam)==0)
+			if(displaySpecificTeamInfo(finalsOrder,i,Nowteam[i])==0)
 			{
 				cout << "None";
 				endT++;
 			}
 			else
 			{
-				cout <<displaySpecificTeamInfo(finalsOrder,i,currTeam);
+				cout <<displaySpecificTeamInfo(finalsOrder,i,Nowteam[i]);
 			}
 			cout<<"侯赛编号：";
-			if(displaySpecificTeamInfo(finalsOrder,i,preTeam)==0)
+			if(displaySpecificTeamInfo(finalsOrder,i,preteam[i])==0)
 			{
 				cout << "None";
 			}
 			else
 			{
-				cout <<displaySpecificTeamInfo(finalsOrder,i,preTeam);
+				cout <<displaySpecificTeamInfo(finalsOrder,i,preteam[i]);
 			}
 			cout<<"已结束队伍编号：";
 			if(LastTeam==0)
@@ -460,13 +507,13 @@ void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
 			}
 			else
 			{
-				if(displaySpecificTeamInfo(finalsOrder,i,LastTeam)==0)
+				if(displaySpecificTeamInfo(finalsOrder,i,lasteam[i])==0)
 				{
 					cout << "None";
 				}
 				else
 				{
-					cout<<displaySpecificTeamInfo(finalsOrder,i,LastTeam);
+					cout<<displaySpecificTeamInfo(finalsOrder,i,lasteam[i]);
 				}
 			}
 			cout<<endl;
@@ -474,16 +521,23 @@ void AnalogInterface(const map<int, vector<Team>>& finalsOrder)
 			
 			
 		}
-		sleep(1);//延迟
+		usleep(10000);//延迟
 		
 		currTeam++;
 		LastTeam++;
 		preTeam++;
 		if(endT==17)break;
 	}
-	
+	return ;
 }
- 
+void SIMT(const map<int, vector<Team>>& finalsOrder)
+{
+    thread task01(Timeliner);  //带参数子线程
+    thread task02(AnalogInterface, finalsOrder);
+    task01.join();//    task02.detach();
+	task02.join();
+    return ; 
+ } 
 void Findmap(int start,int end)  //查找
 {
 
@@ -563,7 +617,7 @@ int main() {
     }
     map<int, vector<Team>> finalsOrder = generateFinalsOrder(root);
     int start, end;//用于地图导航
-	system("color F0");
+	system("color 0F");
     while (true) {
         cout << "<-----------赛事信息管理系统---------->" << endl;
         cout << "1.修改参赛队伍信息" << endl;
@@ -610,9 +664,11 @@ int main() {
 				    displayFinalsRoomInfo(finalsOrder, finalsRoomNumber);
 					break;
 				case 2:
-					AnalogInterface(finalsOrder);
+					timeline=0;//时间线重新置为0 
+					SIMT(finalsOrder);
 					system("cls");
-					system("color F0");
+					system("color 0F");
+
 					break;
 				default:
 					break;
